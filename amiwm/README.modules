@@ -57,6 +57,7 @@ The function to perform when the key is pressed.
 Currently the following are defined:
 
 rotatescreens  -  Move the frontmost screen to the back
+rotatewindows  - Rotate the top window to the bottom of the screen
 front          -  Move the window in which the key is pressed to the front
 back           -  Move the window in which the key is pressed to the back
 iconify        - Iconify the window in which the key is pressed
