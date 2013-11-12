@@ -547,11 +547,16 @@ void raiselowerclient(Client *c, int place)
   } else XRaiseWindow(dpy, c->parent);
 }
 
+/*
+ * Lower the top most client.
+ *
+ * This doesn't change/update focus.
+ */
 void
 lowertopmostclient(void)
 {
 	Window r, p, *children;
-	int nchildren;
+	unsigned int nchildren;
 	Client *c_top, *c_bot;
 	Window ws[2];
 
@@ -592,6 +597,65 @@ lowertopmostclient(void)
 	if (children)
 		XFree(children);
 }
+
+extern void setfocus(Window);
+extern Client *activeclient;
+
+void
+raisebottommostclient(void)
+{
+	Window r, p, *children;
+	unsigned int nchildren;
+	Client *c_top, *c_bot;
+	Window ws[2];
+
+	/* Query the list of windows under the active screen */
+	if (XQueryTree(dpy, scr->back, &r, &p, &children, &nchildren) == 0) {
+		fprintf(stderr, "%s: couldn't fetch the window list\n", __func__);
+		return;
+	}
+
+	/*
+	 * Grab the top most client
+	 */
+	c_top = topmostmappedclient(children, nchildren);
+	if (c_top == NULL) {
+		fprintf(stderr, "%s: couldn't get the top most mapped client\n", __func__);
+		return;
+	}
+
+	/*
+	 * And the bottom most client.
+	 */
+	c_bot = bottommostmappedclient(children, nchildren);
+	if (c_bot == NULL) {
+		fprintf(stderr, "%s: couldn't get the bottom most mapped client\n", __func__);
+		return;
+	}
+
+	/*
+	 * If we're doing click-to-focus, mark the old top-most window
+	 * as inactive; mark the new top-most window as active and has focus.
+	 */
+	if (prefs.focus == FOC_CLICKTOTYPE) {
+		c_top->active = False;
+		c_bot->active = True;
+		activeclient = c_bot;
+		redrawclient(c_bot);
+		redrawclient(c_top);
+		setfocus(c_bot->window);
+	}
+
+	/* Raise the selected window to the top */
+	XRaiseWindow(dpy, c_bot->parent);
+
+	/*
+	 * Free the children list.
+	 */
+	if (children)
+		XFree(children);
+}
+
 
 void gadgetunclicked(Client *c, XEvent *e)
 {
