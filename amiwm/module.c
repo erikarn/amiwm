@@ -332,6 +332,7 @@ void mod_menuselect(struct module *m, int menu, int item, int subitem)
 }
 
 extern void lowertopmostclient(void);
+extern void raisebottommostclient(void);
 
 static void handle_module_cmd(struct module *m, char *data, int data_len)
 {
@@ -373,7 +374,7 @@ static void handle_module_cmd(struct module *m, char *data, int data_len)
     scr = getscreen(id);
 
     /* lower away! */
-    lowertopmostclient();
+    raisebottommostclient();
 
     reply_module(m, NULL, 0);
     break;
@@ -518,7 +519,7 @@ static void module_input_callback(struct module *m)
     int t=(r>m->in_left? m->in_left:r);
     memcpy(m->in_ptr, p, t);
     m->in_ptr+=t;
-    if(!(m->in_left-=t))
+    if(!(m->in_left-=t)) {
       if(m->in_phase || ((!m->mcmd.len)&&(m->in_ptr=m->in_buf))) {
 	*m->in_ptr=0;
 	handle_module_cmd(m, m->in_buf, m->mcmd.len);
@@ -536,6 +537,7 @@ static void module_input_callback(struct module *m)
 	m->in_left=m->mcmd.len;
 	m->in_phase++;
       }
+    }
     p+=t;
     r-=t;
   }
