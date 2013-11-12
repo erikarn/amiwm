@@ -22,6 +22,12 @@ int md_iconify(XID id)
   return md_command00(id, MCMD_ICONIFY);
 }
 
+int md_rotate_window(XID id)
+{
+	return md_command00(id, MCMD_ROTATE_WINDOW);
+}
+
+
 int md_errormsg(Window id, char *str)
 {
   return md_command0(id, MCMD_ERRORMSG, str, strlen(str));
