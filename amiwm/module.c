@@ -331,6 +331,8 @@ void mod_menuselect(struct module *m, int menu, int item, int subitem)
 	  menu, item, subitem, (int)m->pid);
 }
 
+extern void lowertopmostclient(void);
+
 static void handle_module_cmd(struct module *m, char *data, int data_len)
 {
   extern Scrn *getscreen(Window);
@@ -363,6 +365,16 @@ static void handle_module_cmd(struct module *m, char *data, int data_len)
   case MCMD_ROTATE_SCREEN:
     scr=getscreen(id);
     screentoback();
+    reply_module(m, NULL, 0);
+    break;
+  case MCMD_ROTATE_WINDOW:
+    fprintf(stderr, "%s: MCMD_ROTATE_WINDOW\n", __func__);
+    /* Get the current screen?  */
+    scr = getscreen(id);
+
+    /* lower away! */
+    lowertopmostclient();
+
     reply_module(m, NULL, 0);
     break;
   case MCMD_ADD_KEYGRAB:
